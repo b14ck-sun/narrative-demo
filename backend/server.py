@@ -20,6 +20,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+@app.route('/api/test')
+def test():
+    return 'Hello, World!'
+
 @app.route("/api/generate", methods = ['POST'])
 def process():
     try:
@@ -43,7 +48,9 @@ def makefile():
     try:
         text = request.form.get('text')
         files = request.files.getlist('files')
-        if not text or not files:
+        print(text)
+        print(files)
+        if not text and not files:
             return jsonify({'error': 'Missing text or files'}), 400
         merged_pdf_path = make_pdf(text, files)
         return send_file(merged_pdf_path, as_attachment=True)
