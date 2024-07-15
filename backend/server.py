@@ -12,13 +12,18 @@ allowed_origins = os.getenv('ALLOWED_ORIGINS', '').split(',')
 if allowed_origins == ['']:
     allowed_origins = []
 
-CORS(app, origins=allowed_origins)
+#CORS(app, origins=allowed_origins)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+@app.route('/api/test')
+def test():
+    return 'Hello, World!'
 
 @app.route("/api/generate", methods = ['POST'])
 def process():
@@ -43,8 +48,8 @@ def makefile():
     try:
         text = request.form.get('text')
         files = request.files.getlist('files')
-        if not text or not files:
-            return jsonify({'error': 'Missing text or files'}), 400
+        if not text:
+            return jsonify({'error': 'Missing text'}), 400
         merged_pdf_path = make_pdf(text, files)
         return send_file(merged_pdf_path, as_attachment=True)
     except Exception as e:
@@ -52,5 +57,4 @@ def makefile():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080)
