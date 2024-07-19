@@ -21,7 +21,7 @@ function NextView({
           />
         </Form.Group>
         <Button variant="primary" className="me-2" onClick={handleBack}>
-          Back
+          Edit Facts
         </Button>
         <Button variant="success" onClick={handleDownload} disabled={loadingDL}>
           {loadingDL ? (

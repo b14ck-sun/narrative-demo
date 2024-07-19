@@ -90,7 +90,7 @@ function InitialView({
                 <Spinner animation="border" size="sm" /> Waiting for response...
               </>
             ) : (
-              "Next"
+              "Generate Appeal"
             )}
           </Button>
         </Col>

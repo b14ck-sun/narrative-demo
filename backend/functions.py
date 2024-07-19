@@ -1,8 +1,9 @@
 from PyPDF2 import PdfWriter, PdfReader
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
 from werkzeug.utils import secure_filename
 import io
 import os
@@ -48,24 +49,113 @@ def ask_chatgpt(user_message):
 
 UPLOAD_FOLDER = 'uploads'
 
+def create_footer(canvas, doc):
+    canvas.saveState()
+    width, height = letter
+    canvas.setStrokeColorRGB(0, 0, 0)
+    canvas.setLineWidth(0.5)
+    canvas.line(0.5 * inch, 0.75 * inch, width - 0.5 * inch, 0.75 * inch)
+    page_number_text = str(canvas.getPageNumber())
+    canvas.drawRightString(width - 0.5 * inch, 0.5 * inch, page_number_text)
+    canvas.restoreState()
+
 def create_text_pdf(text, filepath):
     try:
+        # Create a PDF with the text content
         packet = io.BytesIO()
-        doc = SimpleDocTemplate(packet, pagesize=letter)
+        doc = SimpleDocTemplate(packet, pagesize=(letter[0], letter[1]-(2*inch)))
         styles = getSampleStyleSheet()
         story = []
-
+        
         paragraphs = text.split('\n')
         for paragraph in paragraphs:
             story.append(Paragraph(paragraph, styles["Normal"]))
             story.append(Spacer(1, 0.2 * inch))
-
-        doc.build(story)
+        
+        # doc.build(story)
+        doc.build(story, onFirstPage=create_footer, onLaterPages=create_footer)
+        
+        # Move to the beginning of the BytesIO buffer
         packet.seek(0)
-        with open(filepath, 'wb') as f:
-            f.write(packet.read())
+        new_pdf = PdfReader(packet)
+
+        # Read the template PDF
+        template_path = os.path.join(UPLOAD_FOLDER, 'template.pdf')
+        existing_pdf = PdfReader(open(template_path, "rb"))
+        output = PdfWriter()
+
+        # Merge each page of the new pdf with the template page
+        for i in range(len(new_pdf.pages)):
+            # First page header only
+            # template_page = existing_pdf.pages[0] if i == 0 else new_pdf.pages[i]
+            # new_page = new_pdf.pages[i]
+            # if i == 0:
+            #     template_page.merge_page(new_page)
+            #     output.add_page(template_page)
+            # else:
+            #     output.add_page(new_page)
+            
+            # All pages with header
+            template_page = PdfReader(open(template_path, "rb")).pages[0]
+            new_page = new_pdf.pages[i]
+            template_page.merge_page(new_page)
+            output.add_page(template_page)
+
+
+        # Write the output to a file
+        with open(filepath, "wb") as output_stream:
+            output.write(output_stream)
     except Exception as e:
-        logger.error(f"Error in create_pdf: {e}")
+        logger.error(f"Error in create_text_pdf: {e}")
+
+def create_index_pdf(text, filepath):
+    try:
+        # Create a PDF with the text content
+        packet = io.BytesIO()
+        doc = SimpleDocTemplate(packet, pagesize=(letter[0], letter[1]-(2*inch)))
+
+        styles = getSampleStyleSheet()
+        story = []
+        
+        paragraphs = text.split('\n')
+        for paragraph in paragraphs:
+            story.append(Paragraph(paragraph, styles["Normal"]))
+            story.append(Spacer(1, 0.2 * inch))
+        
+        doc.build(story)
+        
+        # Move to the beginning of the BytesIO buffer
+        packet.seek(0)
+        new_pdf = PdfReader(packet)
+
+        # Read the template PDF
+        template_path = os.path.join(UPLOAD_FOLDER, 'template.pdf')
+        existing_pdf = PdfReader(open(template_path, "rb"))
+        output = PdfWriter()
+
+        # Merge each page of the new pdf with the template page
+        for i in range(len(new_pdf.pages)):
+            # First page header only
+            # template_page = existing_pdf.pages[0] if i == 0 else new_pdf.pages[i]
+            # new_page = new_pdf.pages[i]
+            # if i == 0:
+            #     template_page.merge_page(new_page)
+            #     output.add_page(template_page)
+            # else:
+            #     output.add_page(new_page)
+            
+            # All pages with header
+            template_page = PdfReader(open(template_path, "rb")).pages[0]
+            new_page = new_pdf.pages[i]
+            template_page.merge_page(new_page)
+            output.add_page(template_page)
+
+
+        # Write the output to a file
+        with open(filepath, "wb") as output_stream:
+            output.write(output_stream)
+    except Exception as e:
+        logger.error(f"Error in create_text_pdf: {e}")
 
 def make_pdf(api_response, files):
     try:
@@ -87,14 +177,14 @@ def make_pdf(api_response, files):
 
         # Create index page PDF
         index_text = "Index of Files:\n\n"
-        current_page = num_response_pages + 2  # Starting page number after the response PDF
+        current_page = num_response_pages + 2 
         for i, file in enumerate(saved_files):
             index_text += f"{i + 1}. {os.path.basename(file)} starts at page {current_page}\n"
             reader = PdfReader(file)
             current_page += len(reader.pages)
 
         index_pdf_path = os.path.join(UPLOAD_FOLDER, 'index.pdf')
-        create_text_pdf(index_text, index_pdf_path)
+        create_index_pdf(index_text, index_pdf_path)
 
         output_pdf = PdfWriter()
 
