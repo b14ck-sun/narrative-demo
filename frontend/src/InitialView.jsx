@@ -24,16 +24,18 @@ function InitialView({
           <div className="p-3 border bg-light">
             <h4>Instructions</h4>
             <p>
-              Please enter a list of facts. Make sure to answer the following
-              questions and provide supporting documents if applicable. You can
+              Make sure to address the following questions in the statement of
+              facts and provide supporting documents, where applicable. You can
               add more facts if needed.
               <br />
               <br />
-              1. Who is taxpayer/seller/person involved?
+              1. Who is the taxpayer/seller/person involved?
               <br />
-              2. What is the tax matter?
+              2. What is the tax matter in respect of (income, property, other)?
               <br />
-              3. Why do you think you don’t own tax?
+              3. Why do you believe the tax agency has mistakenly assessed tax?
+              <br />
+              4. Any additional facts you believe are relevant.
             </p>
           </div>
         </Col>
