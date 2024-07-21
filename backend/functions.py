@@ -39,7 +39,12 @@ def chatgpt(messages, model="gpt-4o"):
 def ask_chatgpt(user_message):
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"Please write the following statement of facts as a legal narrative.\n{user_message}"}
+        {"role": "user", "content": f'''Please write the given statement of facts as a legal narrative.
+        The text should start with the name, address and postal code of the person. If no some of the information is not provided use a placeholder instead.
+        Next, include all the given facts in the begining and number them.
+        Lastly, write the legal narrative.
+        The facts are as follows:
+        \n{user_message}'''}
     ]
     response = chatgpt(messages)
     return response
