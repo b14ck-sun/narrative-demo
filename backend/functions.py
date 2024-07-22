@@ -41,8 +41,8 @@ def ask_chatgpt(user_message):
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": f'''Please write the given statement of facts as a legal narrative.
         The text should start with the name, address and postal code of the person. If no some of the information is not provided use a placeholder instead.
-        Next, include all the given facts in the begining and number them.
-        Lastly, write the legal narrative.
+        Next, include all the given facts in the begining and number them. Call this section Statement of Facts
+        Last, write the legal narrative. Call this section Analysis. The text within analysis should be written in paragraph(s) and should not be numbered.
         The facts are as follows:
         \n{user_message}'''}
     ]
