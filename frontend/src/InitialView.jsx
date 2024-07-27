@@ -63,6 +63,7 @@ function InitialView({
               </Button>
               <input
                 type="file"
+                accept="image/png, .jpg, .jpeg, .pdf"
                 id={`fileInput${index}`}
                 style={{ display: "none" }}
                 onChange={(event) => handleFileChange(index, event)}

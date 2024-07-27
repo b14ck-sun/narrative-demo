@@ -5,8 +5,10 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from werkzeug.utils import secure_filename
+from PIL import Image
 import io
 import os
+import glob
 import logging
 
 from openai import OpenAI
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 client = OpenAI()
 
-def chatgpt(messages, model="gpt-4o"):
+def chatgpt(messages, model="gpt-4o-mini"):
     try:
         completion = client.chat.completions.create(
         model=model,
@@ -40,10 +42,29 @@ def ask_chatgpt(user_message):
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": f'''Please write the given statement of facts as a legal narrative.
-        The text should start with the name, address and postal code of the person. If no some of the information is not provided use a placeholder instead.
-        Next, include all the given facts in the begining and number them. Call this section Statement of Facts
-        Last, write the legal narrative. Call this section Analysis. The text within analysis should be written in paragraph(s) and should not be numbered.
-        The facts are as follows:
+        The text should start with the person's information. If no some of the information is not provided use a placeholder instead.
+        Next, write the legal narrative. Call this section Explanation. Start with saying "I object to the assessment" and finish with "I would be pleased". The text within explanation should not be numbered and should be written from the perspective of the person presenting the facts.
+        Last, include all the given facts in the begining and number them. Call this section Statement of Facts.
+        ---
+        Follow this format for the output:
+        [Name]
+        [Address]
+        [Province, Country]
+        [Postal Code]
+
+        Dear Sir or Madam,
+
+        [Explanation]
+        I object to the assessment of [explain the situation based on statement of facts].
+        I would be pleased [Conclude and summarize the situation]
+
+        [Statement of Facts]
+        1. Fact#1
+        2. Fact#2
+        etc.
+        ---
+        , 
+        The given facts are as follows:
         \n{user_message}'''}
     ]
     response = chatgpt(messages)
@@ -53,6 +74,8 @@ def ask_chatgpt(user_message):
 
 
 UPLOAD_FOLDER = 'uploads'
+RESOURCE_FOLDER = 'resources'
+DOWNLOAD_FOLDER = 'downloads'
 
 def create_footer(canvas, doc):
     canvas.saveState()
@@ -64,7 +87,7 @@ def create_footer(canvas, doc):
     canvas.drawRightString(width - 0.5 * inch, 0.5 * inch, page_number_text)
     canvas.restoreState()
 
-def create_text_pdf(text, filepath):
+def create_text_pdf(text, filepath, template_path):
     try:
         # Create a PDF with the text content
         packet = io.BytesIO()
@@ -85,7 +108,6 @@ def create_text_pdf(text, filepath):
         new_pdf = PdfReader(packet)
 
         # Read the template PDF
-        template_path = os.path.join(UPLOAD_FOLDER, 'template.pdf')
         existing_pdf = PdfReader(open(template_path, "rb"))
         output = PdfWriter()
 
@@ -113,7 +135,7 @@ def create_text_pdf(text, filepath):
     except Exception as e:
         logger.error(f"Error in create_text_pdf: {e}")
 
-def create_index_pdf(text, filepath):
+def create_index_pdf(text, filepath, template_path):
     try:
         # Create a PDF with the text content
         packet = io.BytesIO()
@@ -134,7 +156,6 @@ def create_index_pdf(text, filepath):
         new_pdf = PdfReader(packet)
 
         # Read the template PDF
-        template_path = os.path.join(UPLOAD_FOLDER, 'template.pdf')
         existing_pdf = PdfReader(open(template_path, "rb"))
         output = PdfWriter()
 
@@ -155,7 +176,6 @@ def create_index_pdf(text, filepath):
             template_page.merge_page(new_page)
             output.add_page(template_page)
 
-
         # Write the output to a file
         with open(filepath, "wb") as output_stream:
             output.write(output_stream)
@@ -165,16 +185,13 @@ def create_index_pdf(text, filepath):
 def make_pdf(api_response, files):
     try:
         # Save uploaded files
-        saved_files = []
-        for file in files:
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            saved_files.append(filepath)
+        saved_files = save_files(files)
 
         # Create API response PDF
+        template_path = os.path.join(RESOURCE_FOLDER, 'template.pdf')
         response_pdf_path = os.path.join(UPLOAD_FOLDER, 'response.pdf')
-        create_text_pdf(api_response, response_pdf_path)
+        create_text_pdf(api_response, response_pdf_path, template_path)
+        
 
         # Calculate the number of pages in the API response PDF
         response_pdf = PdfReader(response_pdf_path)
@@ -189,7 +206,7 @@ def make_pdf(api_response, files):
             current_page += len(reader.pages)
 
         index_pdf_path = os.path.join(UPLOAD_FOLDER, 'index.pdf')
-        create_index_pdf(index_text, index_pdf_path)
+        create_index_pdf(index_text, index_pdf_path, template_path)
 
         output_pdf = PdfWriter()
 
@@ -198,24 +215,22 @@ def make_pdf(api_response, files):
         for page in response_pdf.pages:
             output_pdf.add_page(page)
 
-        # Add index PDF to output
-        index_pdf = PdfReader(index_pdf_path)
-        for page in index_pdf.pages:
-            output_pdf.add_page(page)
-
-        # Add saved files to output
-        for filepath in saved_files:
-            reader = PdfReader(filepath)
-            for page in reader.pages:
+        if saved_files:
+            # Add index PDF to output
+            index_pdf = PdfReader(index_pdf_path)
+            for page in index_pdf.pages:
                 output_pdf.add_page(page)
-            os.remove(filepath)
 
-        # Delete the response and index PDFs after merging
-        os.remove(response_pdf_path)
-        os.remove(index_pdf_path)
+            # Add saved files to output
+            for filepath in saved_files:
+                reader = PdfReader(filepath)
+                for page in reader.pages:
+                    output_pdf.add_page(page)
+
+            clean_uploads()
 
         # Save the final combined PDF
-        output_path = os.path.join(UPLOAD_FOLDER, "merged.pdf")
+        output_path = os.path.join(DOWNLOAD_FOLDER, "merged.pdf")
         with open(output_path, "wb") as output_file:
             output_pdf.write(output_file)
 
@@ -224,3 +239,27 @@ def make_pdf(api_response, files):
     except Exception as e:
         logger.error(f"Error in make_pdf: {e}")
         return None
+    
+def save_files(files):
+    saved_files = []
+    for file in files:
+            filename = secure_filename(file.filename)
+            if filename.endswith('.pdf'):
+                filepath = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(filepath)
+                saved_files.append(filepath)
+            elif filename.endswith('.png') or filename.endswith('.jpg'):
+                image = Image.open(file)
+                image = image.resize([int(letter[0]), int(letter[1])])
+                pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
+                pdf_filepath = os.path.join(UPLOAD_FOLDER, pdf_filename)
+                image.convert('RGB').save(pdf_filepath, 'PDF')
+                saved_files.append(pdf_filepath)
+            else:
+                continue
+    return saved_files
+
+def clean_uploads():
+    files = glob.glob(UPLOAD_FOLDER+"/*")
+    for f in files:
+        os.remove(f)
