@@ -15,8 +15,12 @@ if allowed_origins == ['']:
 #CORS(app, origins=allowed_origins)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# UPLOAD_FOLDER = 'uploads'
+# os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# RESOURCE_FOLDER = 'resources'
+# os.makedirs(RESOURCE_FOLDER, exist_ok=True)
+# DOWNLOAD_FOLDER = 'donwloads'
+# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
