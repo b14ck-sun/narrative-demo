@@ -1,11 +1,11 @@
 import { Row, Col, Form, Button, Spinner } from "react-bootstrap";
 
-function InitialView({
+function FactsView({
   textBoxes,
   addTextBox,
   removeTextBox,
   handleInputChange,
-  handleNext,
+  handleAppeal,
   handleFileUpload,
   files,
   loading,
@@ -87,7 +87,7 @@ function InitialView({
             Add New Fact
           </Button>
           <br />
-          <Button variant="success" onClick={handleNext} disabled={loading}>
+          <Button variant="success" onClick={handleAppeal} disabled={loading}>
             {loading ? (
               <>
                 <Spinner animation="border" size="sm" /> Waiting for response...
@@ -102,4 +102,4 @@ function InitialView({
   );
 }
 
-export default InitialView;
+export default FactsView;

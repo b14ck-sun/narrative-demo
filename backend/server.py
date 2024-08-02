@@ -29,6 +29,18 @@ logger = logging.getLogger(__name__)
 def test():
     return 'Hello, World!'
 
+@app.route("/api/generate_facts", methods = ['POST'])
+def get_facts():
+    try:
+        req = request.get_json()
+        message = req['text']
+        # print(message)
+        response = ['test1', 'test2', 'test3']
+        return jsonify({'response': response})
+    except Exception as e:
+        logger.error(f"Error in /generate: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route("/api/generate", methods = ['POST'])
 def process():
     try:

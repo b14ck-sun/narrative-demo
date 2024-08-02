@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 client = OpenAI()
 
-def chatgpt(messages, model="gpt-4o-mini"):
+def chatgpt(messages, model="gpt-4o"):
     try:
         completion = client.chat.completions.create(
         model=model,
@@ -248,7 +248,7 @@ def save_files(files):
                 filepath = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(filepath)
                 saved_files.append(filepath)
-            elif filename.endswith('.png') or filename.endswith('.jpg'):
+            elif filename.endswith('.png') or filename.endswith('.jpg') or filename.endswith('.jpeg'):
                 image = Image.open(file)
                 image = image.resize([int(letter[0]), int(letter[1])])
                 pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
