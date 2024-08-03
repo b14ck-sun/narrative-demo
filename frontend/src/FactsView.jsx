@@ -26,7 +26,7 @@ function FactsView({
             <p>
               Make sure to address the following questions in the statement of
               facts and provide supporting documents, where applicable. You can
-              add more facts if needed.
+              add more facts or remove them if needed.
               <br />
               <br />
               1. Who is the taxpayer/seller/person involved?
@@ -81,13 +81,20 @@ function FactsView({
                     {files[index][fileId].name} ({fileId})
                   </div>
                 ))}
+              <hr />
             </Form.Group>
           ))}
           <Button variant="primary" onClick={addTextBox} className="mb-3">
             Add New Fact
           </Button>
           <br />
-          <Button variant="success" onClick={handleAppeal} disabled={loading}>
+          <br />
+          <Button
+            className="mb-5"
+            variant="success"
+            onClick={handleAppeal}
+            disabled={loading}
+          >
             {loading ? (
               <>
                 <Spinner animation="border" size="sm" /> Waiting for response...
