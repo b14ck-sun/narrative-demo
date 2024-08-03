@@ -1,6 +1,6 @@
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
-from functions import make_pdf, ask_chatgpt
+from functions import make_pdf, generate_appeal, generate_facts
 import logging
 import os
 
@@ -34,8 +34,7 @@ def get_facts():
     try:
         req = request.get_json()
         message = req['text']
-        # print(message)
-        response = ['test1', 'test2', 'test3']
+        response = generate_facts(message)
         return jsonify({'response': response})
     except Exception as e:
         logger.error(f"Error in /generate: {e}")
@@ -53,7 +52,7 @@ def process():
                 message += f'{text} [Reference {files}] \n'
             else:
                 message += f'{text}\n'
-        response = ask_chatgpt(message)
+        response = generate_appeal(message)
         return jsonify({'response': response})
     except Exception as e:
         logger.error(f"Error in /generate: {e}")

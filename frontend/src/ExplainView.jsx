@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Container, Row, Form } from "react-bootstrap";
+import { Button, Col, Container, Row, Form, Spinner } from "react-bootstrap";
 
-function ExplainView({ handleFacts, handleExplainTextChange }) {
+function ExplainView({ handleFacts, handleExplainTextChange, loading }) {
   const instructionsRef = useRef(null);
   const [textBoxHeight, setTextBoxHeight] = useState(0);
 
@@ -55,7 +55,15 @@ function ExplainView({ handleFacts, handleExplainTextChange }) {
               placeholder="Copy and paste your appeal story here..."
             />
           </Form.Group>
-          <Button onClick={handleFacts}>Generate Facts</Button>
+          <Button variant="success" onClick={handleFacts} disabled={loading}>
+            {loading ? (
+              <>
+                <Spinner animation="border" size="sm" /> Waiting for response...
+              </>
+            ) : (
+              "Generate Facts"
+            )}
+          </Button>
         </Col>
       </Row>
     </Container>

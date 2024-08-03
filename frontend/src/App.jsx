@@ -170,6 +170,7 @@ Statement of Facts:
         <ExplainView
           handleFacts={handleFacts}
           handleExplainTextChange={handleExplainTextChange}
+          loading={loading}
         />
       )}
       {currentView === "facts" && (

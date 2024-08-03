@@ -1,4 +1,5 @@
 from PyPDF2 import PdfWriter, PdfReader
+from flask import json
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageTemplate, Frame
 from reportlab.lib.styles import getSampleStyleSheet
@@ -27,18 +28,49 @@ logger = logging.getLogger(__name__)
 
 client = OpenAI()
 
-def chatgpt(messages, model="gpt-4o"):
+def chatgpt(messages, model="gpt-4o", response="text"):
     try:
-        completion = client.chat.completions.create(
-        model=model,
-        temperature = 0,
-        messages=messages
-        )
-        return completion.choices[0].message.content
+        if response == "text":
+            completion = client.chat.completions.create(
+            model=model,
+            temperature = 0,
+            messages=messages
+            )
+            return completion.choices[0].message.content
+        elif response == "json":
+            completion = client.chat.completions.create(
+            model=model,
+            temperature = 0,
+            response_format={ "type": "json_object" },
+            messages=messages
+            )
+            return completion.choices[0].message.content
     except Exception as e:
       return str(e)
   
-def ask_chatgpt(user_message):
+def generate_facts(user_message):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": f'''Please extract the facts from the given narrative.
+        Write it from first person.
+        Your response should be in a json format similar to the following:
+        {{
+            "fatcs": [
+            "fact#1",
+            "fact#2",
+            "fact#3"
+            ]
+        }}   
+        ---
+        The given narrative is as follows:
+        \n{user_message}'''}
+    ]
+    response = chatgpt(messages, model="gpt-4o", response="json")
+    json_object = json.loads(response)
+    facts = json_object["facts"]
+    return facts
+
+def generate_appeal(user_message):
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": f'''Please write the given statement of facts as a legal narrative.
