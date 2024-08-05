@@ -75,7 +75,8 @@ def generate_appeal(user_message):
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": f'''Please write the given statement of facts as a legal narrative.
         The text should start with the person's information. If no some of the information is not provided use a placeholder instead.
-        Next, write the legal narrative. Call this section Explanation. Start with saying "I object to the assessment" and finish with "I would be pleased". The text within explanation should not be numbered and should be written from the perspective of the person presenting the facts.
+        Next, write the legal narrative. Call this section Explanation.
+        Explanation section can be divided into following parts, you can add more parts if necessay. These parts are: Introduction, Background, Legal Argument, and Conclusion. The text within explanation should not be numbered and should be written from the perspective of the person presenting the facts.
         Last, include all the given facts in the begining and number them. Call this section Statement of Facts.
         ---
         Follow this format for the output:

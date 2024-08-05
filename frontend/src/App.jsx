@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container } from "react-bootstrap";
+import { Container, Modal } from "react-bootstrap";
 import ExplainView from "./ExplainView";
 import FactsView from "./FactsView";
 import AppealView from "./AppealView";
@@ -15,6 +15,7 @@ function App() {
   const [apiResponse, setApiResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingDL, setLoadingDL] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const endpointGenerateFacts = `${import.meta.env.VITE_API_URL}generate_facts`;
   const endpointGenerate = `${import.meta.env.VITE_API_URL}generate`;
   const endpointDownload = `${import.meta.env.VITE_API_URL}download`;
@@ -28,7 +29,7 @@ E3V 1A1
 
 Dear Sir or Madam,
 
-I object to the assessment of my 2023 income tax return. In July 2023, I moved with my family from Vancouver, BC, to Edmunston, NB, for a new job. During this move, we encountered an unexpected situation where our car overheated, necessitating a side trip to Banff for repairs. As a result, we incurred additional expenses for gas, car repair, lodging, and meals, which I included in my Form T-1, Moving Expenses, on my 2023 income tax return. These expenses were essential and directly related to the move. I have enclosed a copy of my July 23, 2024, notice of reassessment for your reference. 
+I object to the assessment of my 2023 income tax return. In July 2023, I moved with my family from Vancouver, BC, to Edmunston, NB, for a new job. During this move, we encountered an unexpected situation where our car overheated, necessitating a side trip to Banff for repairs. As a result, we incurred additional expenses for gas, car repair, lodging, and meals, which I included in my Form T-1, Moving Expenses, on my 2023 income tax return. These expenses were essential and directly related to the move. I have enclosed a copy of my July 23, 2024, notice of reassessment for your reference.
 
 I would be pleased if you could reconsider the assessment and acknowledge the legitimacy of these necessary expenses.
 
@@ -39,7 +40,7 @@ Statement of Facts:
 
 3. On my 2023 income tax return, I submitted Form T-1, Moving Expenses, and included a side trip to Banff with the following costs: gas + car repair = $478.75, lodging: $175, meals: $205.50.
 
-4. A side trip to Banff was necessary as a result of my car overheating during the move and needing repair. 
+4. A side trip to Banff was necessary as a result of my car overheating during the move and needing repair.
 
 5. As the car was being repaired, my family needed lodging, so we stayed at a local hotel for one night.
 
@@ -157,11 +158,20 @@ Statement of Facts:
       link.setAttribute("download", "merged.pdf");
       document.body.appendChild(link);
       link.click();
+      setShowModal(true);
     } catch (error) {
       console.error("Error downloading the PDF:", error);
     } finally {
       setLoadingDL(false);
     }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handleDonateClick = () => {
+    window.open("https://buy.stripe.com/cN2dSjgEy0yg2eQ6oo", "_blank");
   };
 
   return (
@@ -194,6 +204,9 @@ Statement of Facts:
           handleTextChange={handleTextChange}
           loadingDL={loadingDL}
           handleDownload={handleDownload}
+          showModal={showModal}
+          closeModal={closeModal}
+          handleDonateClick={handleDonateClick}
         />
       )}
     </Container>

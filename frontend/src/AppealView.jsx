@@ -1,4 +1,4 @@
-import { Row, Col, Form, Button, Spinner } from "react-bootstrap";
+import { Row, Col, Form, Button, Spinner, Modal } from "react-bootstrap";
 
 function AppealView({
   handleBack,
@@ -6,6 +6,9 @@ function AppealView({
   handleTextChange,
   loadingDL,
   handleDownload,
+  showModal,
+  closeModal,
+  handleDonateClick,
 }) {
   return (
     <Row className="justify-content-center mt-5" style={{ height: "90vh" }}>
@@ -39,6 +42,27 @@ function AppealView({
               "Download"
             )}
           </Button>
+          <Modal show={showModal} onHide={closeModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Consider Donating to Help Us!</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Button
+                variant="warning"
+                onClick={handleDonateClick}
+                style={{
+                  backgroundColor: "#FFD700",
+                  borderColor: "#FFD700",
+                  marginTop: "10px",
+                  width: "calc(100% - 20px)",
+                  margin: "10px",
+                  fontSize: "1.2rem",
+                }}
+              >
+                Donate
+              </Button>
+            </Modal.Body>
+          </Modal>
         </div>
       </Col>
     </Row>
