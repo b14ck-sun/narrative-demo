@@ -1,8 +1,10 @@
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 from functions import make_pdf, generate_appeal, generate_facts
+from datetime import datetime
 import logging
 import os
+import csv
 
 app = Flask(__name__)
 
@@ -22,8 +24,25 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # DOWNLOAD_FOLDER = 'donwloads'
 # os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# # Define the log file path
+log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'access_log.csv')
+# # Ensure the directory exists
+os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+def log_request_info():
+    ip = request.remote_addr
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    with open(log_file_path, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([timestamp, ip])
+
+@app.route('/api/usage_report')
+def download_log():
+    return send_file(log_file_path, as_attachment=True)
 
 @app.route('/api/test')
 def test():
@@ -61,6 +80,7 @@ def process():
 @app.route("/api/download", methods = ['POST'])
 def makefile():
     try:
+        log_request_info()
         text = request.form.get('text')
         files = request.files.getlist('files')
         if not text:

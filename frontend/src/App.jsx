@@ -19,7 +19,8 @@ function App() {
   const endpointGenerateFacts = `${import.meta.env.VITE_API_URL}generate_facts`;
   const endpointGenerate = `${import.meta.env.VITE_API_URL}generate`;
   const endpointDownload = `${import.meta.env.VITE_API_URL}download`;
-  const defaultResponse = `James Doe
+  const defaultResponse = `[APPEAL SAMPLE]
+James Doe
 
 123 Main Street
 
@@ -96,13 +97,18 @@ Statement of Facts:
     }
   };
 
-  const handleBack = () => {
-    setCurrentView("facts");
-  };
   // Explain Page
   const handleExplainTextChange = (event) => {
     const newSetExplanation = event.target.value;
     setExplanation(newSetExplanation);
+  };
+
+  const handlePartialServiceClick = () => {
+    window.open("https://buy.stripe.com/eVag0r0FAep6bPqaEG", "_blank");
+  };
+
+  const handleFullServiceClick = () => {
+    window.open("https://zherotax.ca/marketplace/", "_blank");
   };
   // Fact Page
   const addTextBox = () => {
@@ -134,6 +140,10 @@ Statement of Facts:
   const handleTextChange = (event) => {
     const newApiResponse = event.target.value;
     setApiResponse(newApiResponse);
+  };
+
+  const handleBack = () => {
+    setCurrentView("facts");
   };
 
   const handleDownload = async () => {
@@ -181,6 +191,8 @@ Statement of Facts:
           handleFacts={handleFacts}
           handleExplainTextChange={handleExplainTextChange}
           loading={loading}
+          handlePartialServiceClick={handlePartialServiceClick}
+          handleFullServiceClick={handleFullServiceClick}
         />
       )}
       {currentView === "facts" && (

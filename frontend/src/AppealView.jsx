@@ -44,7 +44,9 @@ function AppealView({
           </Button>
           <Modal show={showModal} onHide={closeModal}>
             <Modal.Header closeButton>
-              <Modal.Title>Consider Donating to Help Us!</Modal.Title>
+              <Modal.Title>
+                Consider Donating to Help Us Help More Taxpayers!
+              </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <Button

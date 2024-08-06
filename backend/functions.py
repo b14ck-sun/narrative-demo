@@ -283,7 +283,7 @@ def save_files(files):
                 saved_files.append(filepath)
             elif filename.endswith('.png') or filename.endswith('.jpg') or filename.endswith('.jpeg'):
                 image = Image.open(file)
-                image = image.resize([int(letter[0]), int(letter[1])])
+                # image = image.resize([int(letter[0]), int(letter[1])])
                 pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
                 pdf_filepath = os.path.join(UPLOAD_FOLDER, pdf_filename)
                 image.convert('RGB').save(pdf_filepath, 'PDF')
