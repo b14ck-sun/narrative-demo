@@ -33,7 +33,11 @@ log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'access_log.csv'
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
 def log_request_info():
-    ip = request.remote_addr
+    if request.headers.getlist("X-Forwarded-For"):
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        ip = request.remote_addr
+    
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     with open(log_file_path, mode='a', newline='') as file:

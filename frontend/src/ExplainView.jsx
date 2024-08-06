@@ -12,8 +12,8 @@ function ExplainView({
   const [textBoxHeight, setTextBoxHeight] = useState(0);
   const placeHolderText = `Enter your appeal story here...
 
-Step. 1: Explain* why you are objecting to the tax assessment 
-and press the “Generate Facts” button when finished.
+Step. 1: Write or paste your explanation for why you're objecting to 
+your tax notice or assessment.
 
 *We recommend that you use Word or a similar program to write out
 your explanation for objecting, and copy/paste the explanation here.
@@ -42,10 +42,10 @@ as you keep the same browser tab open.`;
           <div ref={instructionsRef} className="p-3 border bg-light">
             <h4>Welcome To ZheroTax</h4>
             <p>
-              The AI powered appeal generation tool to the right is DIY and
-              free. Just explain your tax objection in plain language and AI
-              will do the rest in extracting the facts and writing a
-              professional explanation to support your tax objection.
+              Our AI powered appeal generation tool is DIY and free. Just
+              explain your tax objection in plain language and AI will do the
+              rest in extracting the facts and writing a professional
+              explanation to support your tax objection.
               <br />
               <br />
               We also offer paid options, where a former Canada Revenue Agency
